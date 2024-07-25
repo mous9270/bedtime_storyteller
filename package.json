@@ -1,0 +1,12 @@
+{
+  "name": "bedtime_storyteller",
+  "version": "1.0.0",
+  "description": "An app that reads books, articles etc and asks questions in middle about the topic. If the user does not answer, the app stops the audio. If answerd, if it is wrong it corrects the user, else continues with the book.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
