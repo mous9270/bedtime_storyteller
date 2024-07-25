@@ -1,6 +1,7 @@
 // pages/index.js
 'use client'
 
+import Reading from './components/Reading.jsx'
 import React, { useEffect, useState } from 'react';
 
 const Home = () => {
@@ -15,6 +16,7 @@ const Home = () => {
   return (
     <div>
       <h1>Book List</h1>
+      <Reading />
       <ul>
         {books.map((book) => (
           <li key={book._id}>{book.title}</li>
