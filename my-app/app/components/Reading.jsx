@@ -4,30 +4,77 @@ import React, { useState, useEffect } from 'react';
 const Reading = ({ book }) => {
   const [currentContent, setCurrentContent] = useState('');
   const [currentQuestion, setCurrentQuestion] = useState('');
-  const [answer, setAnswer] = useState('');
   const [questionIndex, setQuestionIndex] = useState(0);
+  const [isListening, setIsListening] = useState(false);
 
   useEffect(() => {
-    // Start reading the book
-    setCurrentContent(book.content);
-    setCurrentQuestion(book.questions[questionIndex]);
+    if (book) {
+      // Start reading the book
+      setCurrentContent(book.content);
+      if (book.questions && book.questions.length > 0) {
+        setCurrentQuestion(book.questions[questionIndex]);
+      }
+      startReading(book.content);
+    }
   }, [book, questionIndex]);
 
-  const handleAnswer = () => {
-    if (answer === currentQuestion.answer) {
+  const startReading = (text) => {
+    const speech = new SpeechSynthesisUtterance(text);
+    speechSynthesis.speak(speech);
+
+    speech.onend = () => {
+      if (book.questions && book.questions.length > 0) {
+        setCurrentQuestion(book.questions[questionIndex]);
+      }
+      setIsListening(true);
+      startListening();
+    };
+  };
+
+  const startListening = () => {
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onresult = (event) => {
+      const speechResult = event.results[0][0].transcript;
+      handleAnswer(speechResult);
+    };
+
+    recognition.onspeechend = () => {
+      recognition.stop();
+      setIsListening(false);
+    };
+
+    recognition.onerror = (event) => {
+      console.error(event.error);
+      setIsListening(false);
+    };
+
+    recognition.start();
+  };
+
+  const handleAnswer = (answer) => {
+    if (book && book.questions && answer.toLowerCase() === currentQuestion.answer.toLowerCase()) {
       setQuestionIndex(questionIndex + 1);
+      const nextContent = book.content.split('.')[questionIndex + 1];
+      startReading(nextContent);
     } else {
-      alert('Incorrect answer! The correct answer is ' + currentQuestion.answer);
+      alert(`Incorrect answer! The correct answer is ${currentQuestion.answer}`);
+      setIsListening(true);
+      startListening();
     }
-    setAnswer('');
   };
 
   return (
     <div>
-      <p>{currentContent}</p>
-      <p>{currentQuestion.question}</p>
-      <input value={answer} onChange={(e) => setAnswer(e.target.value)} />
-      <button onClick={handleAnswer}>Submit</button>
+      {book && book.questions && book.questions.length > 0 && (
+        <>
+          <p>{currentQuestion.question}</p>
+          <p>{isListening ? 'Listening...' : 'Click the button to start listening'}</p>
+        </>
+      )}
     </div>
   );
 };

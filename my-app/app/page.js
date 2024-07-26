@@ -1,11 +1,12 @@
 // pages/index.js
-'use client'
+"use client" 
 
-import Reading from './components/Reading.jsx'
 import React, { useEffect, useState } from 'react';
+import Reading from './components/Reading';
 
 const Home = () => {
   const [books, setBooks] = useState([]);
+  const [selectedBook, setSelectedBook] = useState(null);
 
   useEffect(() => {
     fetch('/api/books')
@@ -19,9 +20,12 @@ const Home = () => {
       <Reading />
       <ul>
         {books.map((book) => (
-          <li key={book._id}>{book.title}</li>
+          <li key={book._id} onClick={() => setSelectedBook(book)}>
+            {book.title}
+          </li>
         ))}
       </ul>
+      {selectedBook && <Reading book={selectedBook} />}
     </div>
   );
 };
